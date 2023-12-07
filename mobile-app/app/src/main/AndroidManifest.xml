@@ -13,6 +13,11 @@
         android:theme="@style/Theme.DecisionMaking"
         tools:targetApi="31">
         <activity
+            android:name=".FacilitatorActivity"
+            android:exported="false"
+            android:label="@string/title_activity_facilitator"
+            android:theme="@style/Theme.DecisionMaking" />
+        <activity
             android:name=".ExpertsActivity"
             android:exported="false"
             android:label="@string/title_activity_experts"

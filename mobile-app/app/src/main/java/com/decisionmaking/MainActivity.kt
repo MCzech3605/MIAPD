@@ -15,9 +15,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.decisionmaking.ui.theme.DecisionMakingTheme
@@ -26,6 +26,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        getItemsAndAttributes()
+        writeAlternatives()
         setContent {
             DecisionMakingTheme {
                 // A surface container using the 'background' color from the theme
@@ -50,10 +52,14 @@ fun MainMenu(name: String, modifier: Modifier = Modifier) {
     ) {
         Text(
             text = "Welcome to $name!",
+            textAlign = TextAlign.Center,
             modifier = modifier.padding(100.dp)
         )
         ElevatedButton(
-            onClick = { /*TODO*/ },
+            onClick = {
+                val intent = Intent(mContext, FacilitatorActivity::class.java)
+                mContext.startActivity(intent)
+            },
             modifier = Modifier.padding(10.dp)
         ) {
             Text(text = "Facilitator area")
@@ -61,9 +67,6 @@ fun MainMenu(name: String, modifier: Modifier = Modifier) {
         ElevatedButton(
             onClick = {
                 val intent = Intent(mContext, ExpertsActivity::class.java)
-                intent.putExtra("alternatives1", getAlternatives1Array())
-                intent.putExtra("alternatives2", getAlternatives2Array())
-                intent.putExtra("answers", arrayListOf<Int>())
                 intent.putExtra("index", 0)
                 mContext.startActivity(intent)
             },
@@ -71,8 +74,10 @@ fun MainMenu(name: String, modifier: Modifier = Modifier) {
         ) {
             Text(text = "Experts area")
         }
-        ElevatedButton(onClick = { /*TODO*/ },
-            modifier = Modifier.padding(10.dp)) {
+        ElevatedButton(
+            onClick = { /*TODO*/ },
+            modifier = Modifier.padding(10.dp)
+        ) {
             Text(text = "Ranking")
         }
     }
@@ -87,12 +92,3 @@ fun MainMenuPreview() {
     }
 }
 
-fun getAlternatives1Array(): Array<String> {
-    // todo
-    return arrayOf("1.Example alt 1", "2.Example alt 1")
-}
-
-fun getAlternatives2Array(): Array<String> {
-    // todo
-    return arrayOf("1.Example alt2 ", "2.Example alt 2")
-}
