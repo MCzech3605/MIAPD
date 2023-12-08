@@ -12,6 +12,8 @@ var alternatives1: Array<String> = arrayOf("1.Example alt 1", "2.Example alt 1")
 
 var alternatives2: Array<String> = arrayOf("1.Example alt2 ", "2.Example alt 2")
 
+var rankingArray: Array<String> = arrayOf()
+
 
 fun getItemsAndAttributes(){
     // TODO get items and attributes from server
@@ -28,4 +30,8 @@ fun pushAnswers() {
 
 fun sendUserFileToServer(/* TODO argument file */) {
     // TODO push file to server
+}
+
+fun getRanking(){
+    // TODO import ranking to rankingArray
 }

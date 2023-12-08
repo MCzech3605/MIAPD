@@ -75,7 +75,10 @@ fun MainMenu(name: String, modifier: Modifier = Modifier) {
             Text(text = "Experts area")
         }
         ElevatedButton(
-            onClick = { /*TODO*/ },
+            onClick = {
+                val intent = Intent(mContext, RankingActivity::class.java)
+                mContext.startActivity(intent)
+            },
             modifier = Modifier.padding(10.dp)
         ) {
             Text(text = "Ranking")

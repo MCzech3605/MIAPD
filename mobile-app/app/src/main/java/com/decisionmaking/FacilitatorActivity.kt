@@ -36,7 +36,7 @@ class FacilitatorActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    facilitation()
+                    Facilitation()
                 }
             }
         }
@@ -44,7 +44,7 @@ class FacilitatorActivity : ComponentActivity() {
 }
 
 @Composable
-fun facilitation() {
+fun Facilitation() {
     val mContext = LocalContext.current
     var visible by remember { mutableStateOf(true) }
     AnimatedVisibility(
@@ -87,10 +87,10 @@ fun facilitation() {
 @Composable
 fun GreetingPreview() {
     DecisionMakingTheme {
-        facilitation()
+        Facilitation()
     }
 }
 
-fun loadFile(){
+fun loadFile() {
     // TODO implementation
 }

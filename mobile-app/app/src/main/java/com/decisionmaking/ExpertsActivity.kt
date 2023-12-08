@@ -129,16 +129,12 @@ fun Choosing() {
             }
         }
     }
-
-
 }
 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview2() {
     DecisionMakingTheme {
-        val a1 = arrayOf("OPTION ONE VERY LONG")
-        val a2 = arrayOf("OPTION 2")
         Choosing()
     }
 }
