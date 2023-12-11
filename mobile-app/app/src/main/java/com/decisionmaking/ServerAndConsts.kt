@@ -1,6 +1,8 @@
 package com.decisionmaking
 
 import android.net.Uri
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 
 var items: Array<String> = arrayOf()
@@ -18,6 +20,9 @@ var alternatives2: Array<String> = arrayOf("1.Example alt2 ", "2.Example alt 2")
 
 var rankingArray: Array<String> = arrayOf("Example item 1", "Example item 2", "Example item 3")
 
+val headerSize = 30.sp
+val headerPadding = 50.dp
+
 
 fun getItemsAndAttributes() {
     // TODO get items and attributes from server
@@ -32,7 +37,7 @@ fun pushAnswers() {
     resetAnswers()
 }
 
-fun resetAnswers(){
+fun resetAnswers() {
     answers = arrayOf()
 }
 

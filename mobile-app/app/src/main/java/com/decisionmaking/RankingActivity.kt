@@ -25,7 +25,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.decisionmaking.ui.theme.DecisionMakingTheme
 import com.decisionmaking.ui.theme.Teal200
 
@@ -49,28 +48,34 @@ class RankingActivity : ComponentActivity() {
 @Composable
 fun Ranking(items: Array<String>) {
     val mContext = LocalContext.current
-    Column(
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxSize()){
         Text(
             text = "Ranking",
-            fontSize = 20.sp,
-            modifier = Modifier.padding(40.dp)
+            fontSize = headerSize,
+            modifier = Modifier.padding(headerPadding)
         )
         if (items.isNotEmpty())
             TableScreen(items)
         else
             Text(text = "Ranking is currently empty")
-        ElevatedButton(
-            onClick = {
-                mContext.getActivity()?.finish()
-            },
-            modifier = Modifier.padding(10.dp)
+        Column(
+            verticalArrangement = Arrangement.Bottom,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxSize()
         ) {
-            Text(text = "Main Menu")
+
+            ElevatedButton(
+                onClick = {
+                    mContext.getActivity()?.finish()
+                },
+                modifier = Modifier.padding(10.dp)
+            ) {
+                Text(text = "Main Menu")
+            }
         }
     }
+
 }
 
 @Composable
@@ -89,8 +94,7 @@ fun RowScope.TableCell(
 
 @Composable
 fun TableScreen(items: Array<String>) {
-    // Just a fake data... a Pair of Int and String
-    val tableData = (1..items.size).mapIndexed { index, item ->
+    val tableData = (1..items.size).mapIndexed { index, _ ->
         index to items[index]
     }
     // Each cell of a column must have the same weight.

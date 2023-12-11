@@ -27,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.decisionmaking.ui.theme.DecisionMakingTheme
 
 class FacilitatorActivity : ComponentActivity() {
@@ -56,24 +55,32 @@ fun Facilitation() {
         enter = slideInHorizontally(),
     ) {
         Column(
-            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(20.dp)
+            modifier = Modifier.fillMaxSize()
         ) {
             Text(
                 text = "Facilitator area",
-                fontSize = 20.sp,
-                modifier = Modifier.padding(20.dp)
+                fontSize = headerSize,
+                modifier = Modifier.padding(headerPadding)
             )
-            FileLoader()
-            ElevatedButton(
-                onClick = {
-                    visible = false
-                    mContext.getActivity()?.finish()
-                },
-                modifier = Modifier.padding(10.dp)
+            Column(
+                verticalArrangement = Arrangement.Bottom,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .padding(20.dp)
+                    .fillMaxSize()
             ) {
-                Text(text = "Main Menu")
+
+                FileLoader()
+                ElevatedButton(
+                    onClick = {
+                        visible = false
+                        mContext.getActivity()?.finish()
+                    },
+                    modifier = Modifier.padding(10.dp)
+                ) {
+                    Text(text = "Main Menu")
+                }
             }
         }
     }
@@ -118,7 +125,7 @@ fun FileLoader() {
         onClick = {
             filePicker.launch("text/csv")
         },
-        modifier = Modifier.padding(10.dp)
+        modifier = Modifier.padding(bottom = 200.dp)
     ) {
         Text(text = "Send file to server")
     }
