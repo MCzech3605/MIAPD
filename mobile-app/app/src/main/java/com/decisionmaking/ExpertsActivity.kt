@@ -44,11 +44,13 @@ class ExpertsActivity : ComponentActivity() {
         if (alternatives1.isEmpty() || alternatives2.isEmpty() || ind < 0) {
             val toast: Toast = Toast.makeText(this, "Missing attributes!", Toast.LENGTH_LONG)
             toast.show()
+            resetAnswers()
             this.finish()
         } else if (alternatives1.size != alternatives2.size || ind >= alternatives1.size) {
             val toast: Toast =
                 Toast.makeText(this, "Attributes sizes do not match!", Toast.LENGTH_LONG)
             toast.show()
+            resetAnswers()
             this.finish()
         }
         setContent {

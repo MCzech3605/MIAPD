@@ -45,43 +45,47 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainMenu(name: String, modifier: Modifier = Modifier) {
     val mContext = LocalContext.current
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-        modifier = Modifier.padding(10.dp)
-    ) {
+    Column(modifier = Modifier.fillMaxSize()){
         Text(
             text = "Welcome to $name!",
             textAlign = TextAlign.Center,
-            modifier = modifier.padding(100.dp)
+            fontSize = headerSize,
+            modifier = modifier.padding(headerPadding)
         )
-        ElevatedButton(
-            onClick = {
-                val intent = Intent(mContext, FacilitatorActivity::class.java)
-                mContext.startActivity(intent)
-            },
-            modifier = Modifier.padding(10.dp)
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(10.dp).fillMaxSize()
         ) {
-            Text(text = "Facilitator area")
-        }
-        ElevatedButton(
-            onClick = {
-                val intent = Intent(mContext, ExpertsActivity::class.java)
-                intent.putExtra("index", 0)
-                mContext.startActivity(intent)
-            },
-            modifier = Modifier.padding(10.dp)
-        ) {
-            Text(text = "Experts area")
-        }
-        ElevatedButton(
-            onClick = {
-                val intent = Intent(mContext, RankingActivity::class.java)
-                mContext.startActivity(intent)
-            },
-            modifier = Modifier.padding(10.dp)
-        ) {
-            Text(text = "Ranking")
+
+            ElevatedButton(
+                onClick = {
+                    val intent = Intent(mContext, FacilitatorActivity::class.java)
+                    mContext.startActivity(intent)
+                },
+                modifier = Modifier.padding(10.dp)
+            ) {
+                Text(text = "Facilitator area")
+            }
+            ElevatedButton(
+                onClick = {
+                    val intent = Intent(mContext, ExpertsActivity::class.java)
+                    intent.putExtra("index", 0)
+                    mContext.startActivity(intent)
+                },
+                modifier = Modifier.padding(10.dp)
+            ) {
+                Text(text = "Experts area")
+            }
+            ElevatedButton(
+                onClick = {
+                    val intent = Intent(mContext, RankingActivity::class.java)
+                    mContext.startActivity(intent)
+                },
+                modifier = Modifier.padding(10.dp)
+            ) {
+                Text(text = "Ranking")
+            }
         }
     }
 
