@@ -1,8 +1,12 @@
 package com.decisionmaking
 
+import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.layout.Arrangement
@@ -61,15 +65,7 @@ fun Facilitation() {
                 fontSize = 20.sp,
                 modifier = Modifier.padding(20.dp)
             )
-            ElevatedButton(
-                onClick = {
-                    loadFile()
-                    sendUserFileToServer()
-                },
-                modifier = Modifier.padding(10.dp)
-            ) {
-                Text(text = "Send file to server")
-            }
+            FileLoader()
             ElevatedButton(
                 onClick = {
                     visible = false
@@ -91,6 +87,39 @@ fun GreetingPreview() {
     }
 }
 
-fun loadFile() {
-    // TODO implementation
+@Composable
+fun FileLoader() {
+    val mContext = LocalContext.current
+    // 1
+    var hasFile by remember {
+        mutableStateOf(false)
+    }
+    // 2
+    var fileUri by remember {
+        mutableStateOf<Uri?>(null)
+    }
+
+    val filePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri ->
+            // 3
+            hasFile = uri != null
+            fileUri = uri
+            if (sendUserFileToServer(fileUri!!)) {
+                val toast = Toast.makeText(mContext, "File sent correctly", Toast.LENGTH_SHORT)
+                toast.show()
+            } else {
+                val toast = Toast.makeText(mContext, "Error sending file", Toast.LENGTH_SHORT)
+                toast.show()
+            }
+        }
+    )
+    ElevatedButton(
+        onClick = {
+            filePicker.launch("text/csv")
+        },
+        modifier = Modifier.padding(10.dp)
+    ) {
+        Text(text = "Send file to server")
+    }
 }
