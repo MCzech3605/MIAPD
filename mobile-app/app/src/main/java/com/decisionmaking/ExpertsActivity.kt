@@ -102,6 +102,7 @@ fun Choosing() {
                 steps = 11,
                 valueRange = 0f..10f
             )
+            // todo add label for slider (eg. text label under slider)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,

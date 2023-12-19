@@ -123,7 +123,7 @@ fun FileLoader() {
     )
     ElevatedButton(
         onClick = {
-            filePicker.launch("text/csv")
+            filePicker.launch("application/json")  
         },
         modifier = Modifier.padding(bottom = 200.dp)
     ) {

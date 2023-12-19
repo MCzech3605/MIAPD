@@ -41,11 +41,13 @@ fun resetAnswers() {
     answers = arrayOf()
 }
 
+// answers as matrix sent to server with additional 1d array with indexes of compared features
 fun sendUserFileToServer(file: Uri): Boolean {
-    // TODO push .csv file to server
+    // TODO push .json file to server
     return true // return true if success, else return false
 }
 
 fun getRanking() {
-    // TODO import ranking to rankingArray
+    // TODO import ranking to rankingArray like shown below:
+    // rankingArray = ...
 }
