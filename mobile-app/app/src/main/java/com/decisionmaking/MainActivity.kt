@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        getItemsAndAttributes()
+        getItems()
         writeAlternatives()
         setContent {
             DecisionMakingTheme {
@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainMenu(name: String, modifier: Modifier = Modifier) {
     val mContext = LocalContext.current
-    Column(modifier = Modifier.fillMaxSize()){
+    Column(modifier = Modifier.fillMaxSize()) {
         Text(
             text = "Welcome to $name!",
             textAlign = TextAlign.Center,
@@ -55,7 +55,9 @@ fun MainMenu(name: String, modifier: Modifier = Modifier) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier.padding(10.dp).fillMaxSize()
+            modifier = Modifier
+                .padding(10.dp)
+                .fillMaxSize()
         ) {
 
             ElevatedButton(
@@ -85,6 +87,14 @@ fun MainMenu(name: String, modifier: Modifier = Modifier) {
                 modifier = Modifier.padding(10.dp)
             ) {
                 Text(text = "Ranking")
+            }
+            ElevatedButton(
+                onClick = {
+                    getRanking()
+                },
+                modifier = Modifier.padding(10.dp)
+            ) {
+                Text(text = "Update ranking")
             }
         }
     }
