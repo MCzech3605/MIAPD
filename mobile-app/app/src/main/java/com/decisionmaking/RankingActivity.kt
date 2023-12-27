@@ -48,8 +48,10 @@ class RankingActivity : ComponentActivity() {
 @Composable
 fun Ranking(items: Array<String>) {
     val mContext = LocalContext.current
-    Column(horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxSize()){
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxSize()
+    ) {
         Text(
             text = "Ranking",
             fontSize = headerSize,
@@ -64,7 +66,6 @@ fun Ranking(items: Array<String>) {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxSize()
         ) {
-
             ElevatedButton(
                 onClick = {
                     mContext.getActivity()?.finish()
