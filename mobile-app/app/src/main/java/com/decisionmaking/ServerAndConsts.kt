@@ -3,7 +3,13 @@ package com.decisionmaking
 import android.net.Uri
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.net.HttpURLConnection
+import java.net.URL
 
+
+val serverIP = "192.168.0.10"
 
 var itemIds: Array<Int> = arrayOf()
 
@@ -29,6 +35,24 @@ fun getItems() {
     // TODO get itemIds and itemNames from server
     // itemIds = ...
     // itemNames = ...
+    val url = URL(serverIP)
+    val con = url.openConnection() as HttpURLConnection
+    con.requestMethod = "GET"
+    con.setRequestProperty("Content-Type", "application/json")
+
+    val status = con.responseCode
+
+    val `in` = BufferedReader(
+        InputStreamReader(con.inputStream)
+    )
+    var inputLine: String?
+    val content = StringBuffer()
+    while (`in`.readLine().also { inputLine = it } != null) {
+        content.append(inputLine)
+    }
+    `in`.close()
+
+    con.disconnect()
 }
 
 fun writeAlternatives() {
