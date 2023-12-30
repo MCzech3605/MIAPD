@@ -3,13 +3,16 @@ package com.decisionmaking
 import android.net.Uri
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.json.JSONArray
+import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
 
 
-val serverIP = "192.168.0.10"
+val serverIP = "http://192.168.0.10:8000"
 
 var itemIds: Array<Int> = arrayOf()
 
@@ -35,22 +38,32 @@ fun getItems() {
     // TODO get itemIds and itemNames from server
     // itemIds = ...
     // itemNames = ...
-    val url = URL(serverIP)
+    val url = URL("$serverIP/items")
     val con = url.openConnection() as HttpURLConnection
     con.requestMethod = "GET"
     con.setRequestProperty("Content-Type", "application/json")
-
-    val status = con.responseCode
 
     val `in` = BufferedReader(
         InputStreamReader(con.inputStream)
     )
     var inputLine: String?
-    val content = StringBuffer()
+    val jsonString = StringBuffer()
     while (`in`.readLine().also { inputLine = it } != null) {
-        content.append(inputLine)
+        jsonString.append(inputLine)
     }
     `in`.close()
+
+    val json = JSONObject(jsonString.toString())
+    val ids = json.getJSONArray("ids")
+    val names = json.getJSONArray("names")
+
+    itemIds = Array(ids.length()) { i ->
+        ids.getInt(i)
+    }
+
+    itemNames = Array(names.length()) { i ->
+        names.getString(i)
+    }
 
     con.disconnect()
 }
@@ -86,6 +99,33 @@ fun writeServerAnswers() {
 fun pushAnswers() {
     writeServerAnswers()
     // TODO push answersForServer to server with itemIds array
+
+    val matrix = JSONArray()
+
+    answersForServer.forEach { item ->
+        matrix.put(JSONArray(item.toList()))
+    }
+
+    val idsList = JSONArray(itemIds.toList())
+
+    val jsonObject = JSONObject()
+    jsonObject.put("matrix", matrix)
+    jsonObject.put("ids", idsList)
+
+    val url = URL("$serverIP/comparison") // Put your URL here
+    val connection = url.openConnection() as HttpURLConnection
+    connection.requestMethod = "POST"
+    connection.setRequestProperty("Content-Type", "application/json; utf-8")
+    connection.setRequestProperty("Accept", "application/json")
+    connection.doOutput = true
+
+    connection.outputStream.use { os ->
+        val writer = OutputStreamWriter(os, "UTF-8")
+        writer.write(jsonObject.toString())
+        writer.flush()
+        writer.close()
+    }
+
     resetAnswers()
 }
 
@@ -102,5 +142,27 @@ fun sendUserFileToServer(file: Uri): Boolean {
 
 fun getRanking() {
     // TODO import ranking to rankingArray like shown below:
+    val url = URL("$serverIP/ranking")
+    val con = url.openConnection() as HttpURLConnection
+    con.requestMethod = "GET"
+    con.setRequestProperty("Content-Type", "application/json")
+
+    val `in` = BufferedReader(
+        InputStreamReader(con.inputStream)
+    )
+    var inputLine: String?
+    val jsonString = StringBuffer()
+    while (`in`.readLine().also { inputLine = it } != null) {
+        jsonString.append(inputLine)
+    }
+    `in`.close()
+
+    val json = JSONArray(jsonString.toString())
+
+    rankingArray = Array(json.length()) { i ->
+        json.getString(i)
+    }
+
+    con.disconnect()
     // rankingArray = ...
 }
