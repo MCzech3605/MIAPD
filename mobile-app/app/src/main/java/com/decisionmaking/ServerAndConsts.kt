@@ -6,11 +6,13 @@ import androidx.compose.ui.unit.sp
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
+import java.io.File
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
 
+val fileNameCurrentCriterion = "mobile-app/app/src/main/res/raw/current_criterion.txt"
 
 val serverIP = "http://192.168.0.10:8000"
 
@@ -94,10 +96,21 @@ fun getItems() {
     }
 
     con.disconnect()
+
+    setCurrentCriterionToFirst()
 }
 
 fun writeAlternatives() {
     resetAlternatives()
+    if (currentCriterion == -1) {
+        for (i in criteriaIds.indices) {
+            for (j in i + 1 until criteriaIds.size) {
+                alternatives1.plus(criteriaNames[i])
+                alternatives2.plus(criteriaNames[j])
+            }
+        }
+        return
+    }
     for (i in itemIds.indices) {
         for (j in i + 1 until itemIds.size) {
             alternatives1.plus(itemNames[i])
@@ -191,4 +204,24 @@ fun getRanking() {
 
     con.disconnect()
     // rankingArray = ...
+}
+
+fun readFileAsLinesUsingReadLines(fileName: String): List<String> = File(fileName).readLines()
+
+fun getCurrentCriterionFromFile(): Int {
+    val fileLines = readFileAsLinesUsingReadLines(fileNameCurrentCriterion)
+    return fileLines[0].toInt()
+}
+
+fun setCurrentCriterionToFirst() {
+    setCurrentCriterionTo(-1)
+}
+
+fun setCurrentCriterionTo(i: Int) {
+    File(fileNameCurrentCriterion).writeText(i.toString())
+    currentCriterion = i
+}
+
+fun incrementCurrentCriterion() {
+    setCurrentCriterionTo(currentCriterion + 1)
 }
