@@ -1,22 +1,31 @@
 import sqlite3
 
+import ahp
 
 conn: sqlite3.Connection = sqlite3.connect("baza.db")
 cur: sqlite3.Cursor = conn.cursor()
 
 
-def get_criteria_ids(cur=cur):
-    query = "select id from Criteria order by id"
+def get_criteria_ids_and_names(cur=cur):
+    query = "select id, name from Criteria order by id"
     cur.execute(query)
 
-    return [crit[0] for crit in cur.fetchall()]
+    result = cur.fetchall()
+    return {
+        "ids": [crit[0] for crit in result],
+        "names": [crit[1] for crit in result]
+    }
 
 
-def get_alternative_ids(cur=cur):
-    query = "select id from Alternatives order by id"
+def get_alternative_ids_and_names(cur=cur):
+    query = "select id, name from Alternatives order by id"
     cur.execute(query)
+    result = cur.fetchall()
 
-    return [crit[0] for crit in cur.fetchall()]
+    return {
+        "ids": [crit[0] for crit in result],
+        "names": [crit[1] for crit in result]
+    }
 
 
 def insert_criteria_ranking(c: list[int], expert_id: int, m: list[list[int]], cur=cur, conn=conn):
@@ -38,7 +47,7 @@ def insert_criteria_ranking(c: list[int], expert_id: int, m: list[list[int]], cu
                 values (?, ?, ?, ?)
                 """
 
-            info = (c[i], c[j], expert_id, m[i][j])
+            info = (c[i], c[j], expert_id, int(m[i][j]))
             cur.execute(query, info)
             conn.commit()
 
@@ -69,6 +78,7 @@ def insert_alternative_ranking(a: list[int], criterion: int, expert_id: int, m: 
 
 
 if __name__ == "__main__":
-    criteria = get_criteria_ids()
-    alternatives = get_alternative_ids()
+    criteria = get_criteria_ids_and_names()
+    alternatives = get_alternative_ids_and_names()
+    print(ahp.get_alternatives())
     print(criteria, alternatives)

@@ -3,11 +3,30 @@ package com.decisionmaking
 import android.net.Uri
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.json.JSONArray
+import org.json.JSONObject
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.io.OutputStreamWriter
+import java.net.HttpURLConnection
+import java.net.URL
 
+
+val serverIP = "http://192.168.0.10:8000"
 
 var itemIds: Array<Int> = arrayOf()
 
 var itemNames: Array<String> = arrayOf()
+
+var itemDescriptions: Array<String> = arrayOf()
+
+var criteriaIds: Array<Int> = arrayOf()
+
+var criteriaNames: Array<String> = arrayOf()
+
+var criteriaDescriptions: Array<String> = arrayOf()
+
+var currentCriterion: Int = 0
 
 var answers: Array<Double> = arrayOf()
 
@@ -26,9 +45,55 @@ val headerSize = 30.sp
 val headerPadding = 50.dp
 
 fun getItems() {
-    // TODO get itemIds and itemNames from server
-    // itemIds = ...
-    // itemNames = ...
+    val url = URL("$serverIP/items")
+    val con = url.openConnection() as HttpURLConnection
+    con.requestMethod = "GET"
+    con.setRequestProperty("Content-Type", "application/json")
+
+    val `in` = BufferedReader(
+        InputStreamReader(con.inputStream)
+    )
+    var inputLine: String?
+    val jsonString = StringBuffer()
+    while (`in`.readLine().also { inputLine = it } != null) {
+        jsonString.append(inputLine)
+    }
+    `in`.close()
+
+    val json = JSONObject(jsonString.toString())
+    val itemIds1 = json.getJSONArray("item_ids")
+    val itemNames1 = json.getJSONArray("item_names")
+    val itemDescriptions1 = json.getJSONArray("item_descriptions")
+
+    val criteriaIds1 = json.getJSONArray("criteria_ids")
+    val criteriaNames1 = json.getJSONArray("criteria_names")
+    val criteriaDescriptions1 = json.getJSONArray("criteria_descriptions")
+
+    itemIds = Array(itemIds1.length()) { i ->
+        itemIds1.getInt(i)
+    }
+
+    itemNames = Array(itemNames1.length()) { i ->
+        itemNames1.getString(i)
+    }
+
+    itemDescriptions = Array(itemDescriptions1.length()) { i ->
+        itemDescriptions1.getString(i)
+    }
+
+    criteriaIds = Array(criteriaIds1.length()) { i ->
+        criteriaIds1.getInt(i)
+    }
+
+    criteriaNames = Array(criteriaNames1.length()) { i ->
+        criteriaNames1.getString(i)
+    }
+
+    criteriaDescriptions = Array(criteriaDescriptions1.length()) { i ->
+        criteriaDescriptions1.getString(i)
+    }
+
+    con.disconnect()
 }
 
 fun writeAlternatives() {
@@ -61,7 +126,33 @@ fun writeServerAnswers() {
 
 fun pushAnswers() {
     writeServerAnswers()
-    // TODO push answersForServer to server with itemIds array
+
+    val matrix = JSONArray()
+
+    answersForServer.forEach { item ->
+        matrix.put(JSONArray(item.toList()))
+    }
+
+    val idsList = JSONArray(itemIds.toList())
+
+    val jsonObject = JSONObject()
+    jsonObject.put("matrix", matrix)
+    jsonObject.put("ids", idsList)
+
+    val url = URL("$serverIP/comparison") // Put your URL here
+    val connection = url.openConnection() as HttpURLConnection
+    connection.requestMethod = "POST"
+    connection.setRequestProperty("Content-Type", "application/json; utf-8")
+    connection.setRequestProperty("Accept", "application/json")
+    connection.doOutput = true
+
+    connection.outputStream.use { os ->
+        val writer = OutputStreamWriter(os, "UTF-8")
+        writer.write(jsonObject.toString())
+        writer.flush()
+        writer.close()
+    }
+
     resetAnswers()
 }
 
@@ -77,6 +168,27 @@ fun sendUserFileToServer(file: Uri): Boolean {
 }
 
 fun getRanking() {
-    // TODO import ranking to rankingArray like shown below:
+    val url = URL("$serverIP/ranking")
+    val con = url.openConnection() as HttpURLConnection
+    con.requestMethod = "GET"
+    con.setRequestProperty("Content-Type", "application/json")
+
+    val `in` = BufferedReader(
+        InputStreamReader(con.inputStream)
+    )
+    var inputLine: String?
+    val jsonString = StringBuffer()
+    while (`in`.readLine().also { inputLine = it } != null) {
+        jsonString.append(inputLine)
+    }
+    `in`.close()
+
+    val json = JSONArray(jsonString.toString())
+
+    rankingArray = Array(json.length()) { i ->
+        json.getString(i)
+    }
+
+    con.disconnect()
     // rankingArray = ...
 }
