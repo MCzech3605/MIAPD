@@ -1,18 +1,18 @@
 package com.decisionmaking
 
+import android.content.res.Resources
 import android.net.Uri
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
+import java.io.DataInputStream
 import java.io.File
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
-
-const val fileNameCurrentCriterion = "mobile-app/app/src/main/res/raw/current_criterion.txt"
 
 const val serverIP = "http://192.168.0.10:8000"
 
@@ -47,57 +47,20 @@ val headerSize = 30.sp
 val headerPadding = 50.dp
 
 fun getItems() {
-    val url = URL("$serverIP/items")
-    val con = url.openConnection() as HttpURLConnection
-    con.requestMethod = "GET"
-    con.setRequestProperty("Content-Type", "application/json")
+    itemIds = arrayOf(4,5,6,7)
 
-    val `in` = BufferedReader(
-        InputStreamReader(con.inputStream)
-    )
-    var inputLine: String?
-    val jsonString = StringBuffer()
-    while (`in`.readLine().also { inputLine = it } != null) {
-        jsonString.append(inputLine)
-    }
-    `in`.close()
+    itemNames = arrayOf("Ford", "Toyota", "Fiat", "Mercedes")
 
-    val json = JSONObject(jsonString.toString())
-    val itemIds1 = json.getJSONArray("item_ids")
-    val itemNames1 = json.getJSONArray("item_names")
-    val itemDescriptions1 = json.getJSONArray("item_descriptions")
+    itemDescriptions = arrayOf("American car", "Japanese car", "Italian car", "German car")
 
-    val criteriaIds1 = json.getJSONArray("criteria_ids")
-    val criteriaNames1 = json.getJSONArray("criteria_names")
-    val criteriaDescriptions1 = json.getJSONArray("criteria_descriptions")
+    criteriaIds = arrayOf(3,4,5)
 
-    itemIds = Array(itemIds1.length()) { i ->
-        itemIds1.getInt(i)
-    }
+    criteriaNames = arrayOf("fuel capacity", "price", "space")
 
-    itemNames = Array(itemNames1.length()) { i ->
-        itemNames1.getString(i)
-    }
+    criteriaDescriptions = arrayOf("fuel capacity as given in the manual", "total price with taxes",
+        "space inside the vehicle")
 
-    itemDescriptions = Array(itemDescriptions1.length()) { i ->
-        itemDescriptions1.getString(i)
-    }
-
-    criteriaIds = Array(criteriaIds1.length()) { i ->
-        criteriaIds1.getInt(i)
-    }
-
-    criteriaNames = Array(criteriaNames1.length()) { i ->
-        criteriaNames1.getString(i)
-    }
-
-    criteriaDescriptions = Array(criteriaDescriptions1.length()) { i ->
-        criteriaDescriptions1.getString(i)
-    }
-
-    con.disconnect()
-
-    setCurrentCriterionToFirst()
+    currentCriterion = -1
 }
 
 fun writeAlternatives() {
@@ -105,16 +68,16 @@ fun writeAlternatives() {
     if (currentCriterion == -1) {
         for (i in criteriaIds.indices) {
             for (j in i + 1 until criteriaIds.size) {
-                alternatives1.plus(criteriaNames[i])
-                alternatives2.plus(criteriaNames[j])
+                alternatives1 += criteriaNames[i] + " - " + criteriaDescriptions[i]
+                alternatives2 += criteriaNames[j] + " - " + criteriaDescriptions[j]
             }
         }
         return
     }
     for (i in itemIds.indices) {
         for (j in i + 1 until itemIds.size) {
-            alternatives1.plus(itemNames[i])
-            alternatives2.plus(itemNames[j])
+            alternatives1 += itemNames[i] + " - " + itemDescriptions[i]
+            alternatives2 += itemNames[j] + " - " + itemDescriptions[j]
         }
     }
 }
@@ -153,31 +116,7 @@ fun writeServerAnswers() {
 fun pushAnswers() {
     writeServerAnswers()
 
-    val matrix = JSONArray()
-
-    answersForServer.forEach { item ->
-        matrix.put(JSONArray(item.toList()))
-    }
-
-    val idsList = JSONArray(itemIds.toList())
-
-    val jsonObject = JSONObject()
-    jsonObject.put("matrix", matrix)
-    jsonObject.put("ids", idsList)
-
-    val url = URL("$serverIP/comparison") // Put your URL here
-    val connection = url.openConnection() as HttpURLConnection
-    connection.requestMethod = "POST"
-    connection.setRequestProperty("Content-Type", "application/json; utf-8")
-    connection.setRequestProperty("Accept", "application/json")
-    connection.doOutput = true
-
-    connection.outputStream.use { os ->
-        val writer = OutputStreamWriter(os, "UTF-8")
-        writer.write(jsonObject.toString())
-        writer.flush()
-        writer.close()
-    }
+    print(answersForServer)
 
     resetAnswers()
 }
@@ -193,47 +132,5 @@ fun sendFacilitatorFileToServer(file: Uri): Boolean {
 }
 
 fun getRanking() {
-    val url = URL("$serverIP/ranking")
-    val con = url.openConnection() as HttpURLConnection
-    con.requestMethod = "GET"
-    con.setRequestProperty("Content-Type", "application/json")
-
-    val `in` = BufferedReader(
-        InputStreamReader(con.inputStream)
-    )
-    var inputLine: String?
-    val jsonString = StringBuffer()
-    while (`in`.readLine().also { inputLine = it } != null) {
-        jsonString.append(inputLine)
-    }
-    `in`.close()
-
-    val json = JSONArray(jsonString.toString())
-
-    rankingArray = Array(json.length()) { i ->
-        json.getString(i)
-    }
-
-    con.disconnect()
-    // rankingArray = ...
-}
-
-fun readFileAsLinesUsingReadLines(fileName: String): List<String> = File(fileName).readLines()
-
-fun getCurrentCriterionFromFile(): Int {
-    val fileLines = readFileAsLinesUsingReadLines(fileNameCurrentCriterion)
-    return fileLines[0].toInt()
-}
-
-fun setCurrentCriterionToFirst() {
-    setCurrentCriterionTo(-1)
-}
-
-fun setCurrentCriterionTo(i: Int) {
-    File(fileNameCurrentCriterion).writeText(i.toString())
-    currentCriterion = i
-}
-
-fun incrementCurrentCriterion() {
-    setCurrentCriterionTo(currentCriterion + 1)
+     rankingArray = arrayOf("Mercedes", "Toyota", "Fiat", "Ford")
 }

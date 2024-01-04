@@ -151,13 +151,13 @@ fun GreetingPreview2() {
 }
 
 fun addAndFinish(ans: Double, context: Context) {
-    answers.plus(ans)
+    answers += ans
     if (ind == alternatives1.size - 1) {
         pushAnswers()
         val toast =
             Toast.makeText(context, "Answers inserted correctly", Toast.LENGTH_LONG)
         toast.show()
-        incrementCurrentCriterion()
+        currentCriterion++
         context.getActivity()?.finish()
         return
     }
