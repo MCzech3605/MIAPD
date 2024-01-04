@@ -112,7 +112,7 @@ fun FileLoader() {
             // 3
             hasFile = uri != null
             fileUri = uri
-            if (sendUserFileToServer(fileUri!!)) {
+            if (sendFacilitatorFileToServer(fileUri!!)) {
                 val toast = Toast.makeText(mContext, "File sent correctly", Toast.LENGTH_SHORT)
                 toast.show()
             } else {

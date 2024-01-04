@@ -157,6 +157,7 @@ fun addAndFinish(ans: Double, context: Context) {
         val toast =
             Toast.makeText(context, "Answers inserted correctly", Toast.LENGTH_LONG)
         toast.show()
+        incrementCurrentCriterion()
         context.getActivity()?.finish()
         return
     }
