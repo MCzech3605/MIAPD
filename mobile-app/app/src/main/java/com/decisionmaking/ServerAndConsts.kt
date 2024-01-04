@@ -11,8 +11,7 @@ import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
 
-
-val serverIP = "http://192.168.0.10:8000"
+const val serverIP = "http://192.168.0.10:8000"
 
 var itemIds: Array<Int> = arrayOf()
 
@@ -94,14 +93,25 @@ fun getItems() {
     }
 
     con.disconnect()
+
+    currentCriterion = -1
 }
 
 fun writeAlternatives() {
     resetAlternatives()
+    if (currentCriterion == -1) {
+        for (i in criteriaIds.indices) {
+            for (j in i + 1 until criteriaIds.size) {
+                alternatives1 += criteriaNames[i] + " - " + criteriaDescriptions[i]
+                alternatives2 += criteriaNames[j] + " - " + criteriaDescriptions[j]
+            }
+        }
+        return
+    }
     for (i in itemIds.indices) {
         for (j in i + 1 until itemIds.size) {
-            alternatives1.plus(itemNames[i])
-            alternatives2.plus(itemNames[j])
+            alternatives1 += itemNames[i] + " - " + itemDescriptions[i]
+            alternatives2 += itemNames[j] + " - " + itemDescriptions[j]
         }
     }
 }
@@ -112,12 +122,25 @@ fun resetAlternatives() {
 }
 
 fun writeServerAnswers() {
+    if (currentCriterion == -1) {
+        answersForServer = Array(criteriaIds.size) { Array(criteriaIds.size) { 1.0 } }
+        var omitted = 0
+        for (i in criteriaIds.indices) {
+            omitted += i + 1
+            for (j in i + 1 until criteriaIds.size) {
+                val ind = i * criteriaIds.size + j - omitted
+                answersForServer[i][j] = answers[ind]
+                answersForServer[j][i] = 1.0 / answers[ind]
+            }
+        }
+        return
+    }
     answersForServer = Array(itemIds.size) { Array(itemIds.size) { 1.0 } }
-    var ommited = 0
+    var omitted = 0
     for (i in itemIds.indices) {
-        ommited += i + 1
+        omitted += i + 1
         for (j in i + 1 until itemIds.size) {
-            val ind = i * itemIds.size + j - ommited
+            val ind = i * itemIds.size + j - omitted
             answersForServer[i][j] = answers[ind]
             answersForServer[j][i] = 1.0 / answers[ind]
         }
@@ -161,9 +184,8 @@ fun resetAnswers() {
     answersForServer = arrayOf()
 }
 
-// answers as matrix sent to server with additional 1d array with indexes of compared features
-fun sendUserFileToServer(file: Uri): Boolean {
-    // TODO push .json file to server
+fun sendFacilitatorFileToServer(file: Uri): Boolean {
+    // TODO push .json file to server, where .json includes data about items and criteria
     return true // return true if success, else return false
 }
 
@@ -192,3 +214,4 @@ fun getRanking() {
     con.disconnect()
     // rankingArray = ...
 }
+

@@ -2,6 +2,7 @@ package com.decisionmaking
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
@@ -71,9 +72,20 @@ fun MainMenu(name: String, modifier: Modifier = Modifier) {
             }
             ElevatedButton(
                 onClick = {
-                    val intent = Intent(mContext, ExpertsActivity::class.java)
-                    intent.putExtra("index", 0)
-                    mContext.startActivity(intent)
+                    if (currentCriterion < criteriaIds.size) {
+                        if (currentCriterion == 0)
+                            writeAlternatives()
+                        val intent = Intent(mContext, ExpertsActivity::class.java)
+                        intent.putExtra("index", 0)
+                        mContext.startActivity(intent)
+                    } else {
+                        val toast = Toast.makeText(
+                            mContext,
+                            "All answers provided. Please request new questions",
+                            Toast.LENGTH_LONG
+                        )
+                        toast.show()
+                    }
                 },
                 modifier = Modifier.padding(10.dp)
             ) {
@@ -95,6 +107,30 @@ fun MainMenu(name: String, modifier: Modifier = Modifier) {
                 modifier = Modifier.padding(10.dp)
             ) {
                 Text(text = "Update ranking")
+            }
+            ElevatedButton(
+                onClick = {
+                    if (currentCriterion >= criteriaIds.size) {
+                        getItems()
+                        writeAlternatives()
+                        val toast = Toast.makeText(
+                            mContext,
+                            "Successfully imported new items",
+                            Toast.LENGTH_LONG
+                        )
+                        toast.show()
+                    } else {
+                        val toast = Toast.makeText(
+                            mContext,
+                            "Cannot import new items, rate current items first",
+                            Toast.LENGTH_LONG
+                        )
+                        toast.show()
+                    }
+                },
+                modifier = Modifier.padding(10.dp)
+            ) {
+                Text("Get new items")
             }
         }
     }

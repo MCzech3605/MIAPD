@@ -60,7 +60,10 @@ class ExpertsActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Choosing()
+                    if (currentCriterion < 0)
+                        Choosing("comparison between two criteria")
+                    else
+                        Choosing(criteriaNames[currentCriterion])
                 }
             }
         }
@@ -68,7 +71,7 @@ class ExpertsActivity : ComponentActivity() {
 }
 
 @Composable
-fun Choosing() {
+fun Choosing(criterion : String) {
     val context = LocalContext.current
     var sliderPosition by remember { mutableFloatStateOf(5f) }
     var visible by remember { mutableStateOf(true) }
@@ -82,7 +85,13 @@ fun Choosing() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Use slider to express the preference between alternatives:",
+                text = "Use slider to express the preference between alternatives based on given " +
+                        "criterion",
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(30.dp)
+            )
+            Text(
+                text = "Criterion: $criterion",
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(30.dp)
             )
@@ -102,7 +111,6 @@ fun Choosing() {
                 steps = 11,
                 valueRange = 0f..10f
             )
-            // todo add label for slider (eg. text label under slider)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
@@ -138,17 +146,18 @@ fun Choosing() {
 @Composable
 fun GreetingPreview2() {
     DecisionMakingTheme {
-        Choosing()
+        Choosing("here is the criterion description")
     }
 }
 
 fun addAndFinish(ans: Double, context: Context) {
-    answers.plus(ans)
+    answers += ans
     if (ind == alternatives1.size - 1) {
         pushAnswers()
         val toast =
             Toast.makeText(context, "Answers inserted correctly", Toast.LENGTH_LONG)
         toast.show()
+        currentCriterion++
         context.getActivity()?.finish()
         return
     }
