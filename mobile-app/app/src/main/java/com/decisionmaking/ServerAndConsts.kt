@@ -6,13 +6,10 @@ import androidx.compose.ui.unit.sp
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
-import java.io.File
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
-
-const val fileNameCurrentCriterion = "mobile-app/app/src/main/res/raw/current_criterion.txt"
 
 const val serverIP = "http://192.168.0.10:8000"
 
@@ -97,7 +94,7 @@ fun getItems() {
 
     con.disconnect()
 
-    setCurrentCriterionToFirst()
+    currentCriterion = -1
 }
 
 fun writeAlternatives() {
@@ -105,16 +102,16 @@ fun writeAlternatives() {
     if (currentCriterion == -1) {
         for (i in criteriaIds.indices) {
             for (j in i + 1 until criteriaIds.size) {
-                alternatives1.plus(criteriaNames[i])
-                alternatives2.plus(criteriaNames[j])
+                alternatives1 += criteriaNames[i] + " - " + criteriaDescriptions[i]
+                alternatives2 += criteriaNames[j] + " - " + criteriaDescriptions[j]
             }
         }
         return
     }
     for (i in itemIds.indices) {
         for (j in i + 1 until itemIds.size) {
-            alternatives1.plus(itemNames[i])
-            alternatives2.plus(itemNames[j])
+            alternatives1 += itemNames[i] + " - " + itemDescriptions[i]
+            alternatives2 += itemNames[j] + " - " + itemDescriptions[j]
         }
     }
 }
@@ -218,22 +215,3 @@ fun getRanking() {
     // rankingArray = ...
 }
 
-fun readFileAsLinesUsingReadLines(fileName: String): List<String> = File(fileName).readLines()
-
-fun getCurrentCriterionFromFile(): Int {
-    val fileLines = readFileAsLinesUsingReadLines(fileNameCurrentCriterion)
-    return fileLines[0].toInt()
-}
-
-fun setCurrentCriterionToFirst() {
-    setCurrentCriterionTo(-1)
-}
-
-fun setCurrentCriterionTo(i: Int) {
-    File(fileNameCurrentCriterion).writeText(i.toString())
-    currentCriterion = i
-}
-
-fun incrementCurrentCriterion() {
-    setCurrentCriterionTo(currentCriterion + 1)
-}
