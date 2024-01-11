@@ -1,19 +1,18 @@
 import sqlite3
 
-import ahp
-
 conn: sqlite3.Connection = sqlite3.connect("baza.db")
 cur: sqlite3.Cursor = conn.cursor()
 
 
 def get_criteria_ids_and_names(cur=cur):
-    query = "select id, name from Criteria order by id"
+    query = "select id, name, parent_criterion from Criteria order by id"
     cur.execute(query)
 
     result = cur.fetchall()
     return {
         "ids": [crit[0] for crit in result],
-        "names": [crit[1] for crit in result]
+        "names": [crit[1] for crit in result],
+        "parent_ids": [crit[2] for crit in result]
     }
 
 
@@ -80,5 +79,4 @@ def insert_alternative_ranking(a: list[int], criterion: int, expert_id: int, m: 
 if __name__ == "__main__":
     criteria = get_criteria_ids_and_names()
     alternatives = get_alternative_ids_and_names()
-    print(ahp.get_alternatives())
     print(criteria, alternatives)
