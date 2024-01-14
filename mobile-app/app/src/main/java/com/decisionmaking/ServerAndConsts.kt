@@ -114,11 +114,7 @@ fun getItems() {
 fun writeAlternatives() {
     resetAlternatives()
     if (currentCriterion in superCriteria) {
-//        val childCriteria = criteriaNames
-//            .zip(criteriaDescriptions)
-//            .zip(criteriaIds)
-//            .filter { elem -> criteriaParentIds[elem.second] == currentCriterion }
-//
+
         val childCriteria = criteriaIds.indices
             .filter { i -> criteriaParentIds[i] == currentCriterion }
             .map { i -> Pair(criteriaNames[i], criteriaDescriptions[i])}

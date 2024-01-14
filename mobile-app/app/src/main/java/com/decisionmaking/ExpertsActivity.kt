@@ -85,7 +85,7 @@ fun Choosing(criterion : String) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Use slider to express the preference between alternatives based on given " +
+                text = "Use slider to express the preference between alternatives or criteria based on given " +
                         "criterion",
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(30.dp)
