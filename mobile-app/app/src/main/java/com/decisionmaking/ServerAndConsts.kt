@@ -1,17 +1,19 @@
 package com.decisionmaking
 
+import android.content.ContentResolver
 import android.net.Uri
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
+import java.io.File
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
 
-const val serverIP = "http://192.168.0.10:8000"
+const val serverIP = "http://192.168.1.22:8000"
 
 var itemIds: Array<Int> = arrayOf()
 
@@ -24,6 +26,10 @@ var criteriaIds: Array<Int> = arrayOf()
 var criteriaNames: Array<String> = arrayOf()
 
 var criteriaDescriptions: Array<String> = arrayOf()
+
+var criteriaParentIds: Array<Int> = arrayOf()
+
+var superCriteria: MutableSet<Int> = mutableSetOf(-1)
 
 var currentCriterion: Int = 0
 
@@ -47,19 +53,17 @@ fun getItems() {
     val url = URL("$serverIP/items")
     val con = url.openConnection() as HttpURLConnection
     con.requestMethod = "GET"
-    con.setRequestProperty("Content-Type", "application/json")
+    val response = StringBuilder()
 
-    val `in` = BufferedReader(
-        InputStreamReader(con.inputStream)
-    )
-    var inputLine: String?
-    val jsonString = StringBuffer()
-    while (`in`.readLine().also { inputLine = it } != null) {
-        jsonString.append(inputLine)
+    BufferedReader(InputStreamReader(con.inputStream)).use {
+        var inputLine = it.readLine()
+        while (inputLine != null) {
+            response.append(inputLine)
+            inputLine = it.readLine()
+        }
     }
-    `in`.close()
 
-    val json = JSONObject(jsonString.toString())
+    val json = JSONObject(response.toString())
     val itemIds1 = json.getJSONArray("item_ids")
     val itemNames1 = json.getJSONArray("item_names")
     val itemDescriptions1 = json.getJSONArray("item_descriptions")
@@ -67,6 +71,7 @@ fun getItems() {
     val criteriaIds1 = json.getJSONArray("criteria_ids")
     val criteriaNames1 = json.getJSONArray("criteria_names")
     val criteriaDescriptions1 = json.getJSONArray("criteria_descriptions")
+    val criteriaParentIds1 = json.getJSONArray("criteria_parent_ids")
 
     itemIds = Array(itemIds1.length()) { i ->
         itemIds1.getInt(i)
@@ -92,6 +97,15 @@ fun getItems() {
         criteriaDescriptions1.getString(i)
     }
 
+    criteriaParentIds = Array(criteriaParentIds1.length()) { i ->
+        if (criteriaParentIds1.isNull(i)) {
+            -1
+        } else {
+            superCriteria.add(criteriaParentIds1.getInt(i))
+            criteriaParentIds1.getInt(i)
+        }
+    }
+
     con.disconnect()
 
     currentCriterion = -1
@@ -99,19 +113,28 @@ fun getItems() {
 
 fun writeAlternatives() {
     resetAlternatives()
-    if (currentCriterion == -1) {
-        for (i in criteriaIds.indices) {
-            for (j in i + 1 until criteriaIds.size) {
-                alternatives1 += criteriaNames[i] + " - " + criteriaDescriptions[i]
-                alternatives2 += criteriaNames[j] + " - " + criteriaDescriptions[j]
+    if (currentCriterion in superCriteria) {
+//        val childCriteria = criteriaNames
+//            .zip(criteriaDescriptions)
+//            .zip(criteriaIds)
+//            .filter { elem -> criteriaParentIds[elem.second] == currentCriterion }
+//
+        val childCriteria = criteriaIds.indices
+            .filter { i -> criteriaParentIds[i] == currentCriterion }
+            .map { i -> Pair(criteriaNames[i], criteriaDescriptions[i])}
+
+        for (i in childCriteria.indices) {
+            for (j in i + 1 until childCriteria.size) {
+                alternatives1 += childCriteria[i].first + " - " + childCriteria[i].second
+                alternatives2 += childCriteria[j].first + " - " + childCriteria[j].second
             }
         }
-        return
-    }
-    for (i in itemIds.indices) {
-        for (j in i + 1 until itemIds.size) {
-            alternatives1 += itemNames[i] + " - " + itemDescriptions[i]
-            alternatives2 += itemNames[j] + " - " + itemDescriptions[j]
+    } else {
+        for (i in itemIds.indices) {
+            for (j in i + 1 until itemIds.size) {
+                alternatives1 += itemNames[i] + " - " + itemDescriptions[i]
+                alternatives2 += itemNames[j] + " - " + itemDescriptions[j]
+            }
         }
     }
 }
@@ -122,27 +145,30 @@ fun resetAlternatives() {
 }
 
 fun writeServerAnswers() {
-    if (currentCriterion == -1) {
-        answersForServer = Array(criteriaIds.size) { Array(criteriaIds.size) { 1.0 } }
+    if (currentCriterion in superCriteria) {
+        val childCriteria = criteriaIds.indices
+            .filter { i -> criteriaParentIds[i] == currentCriterion }
+
+        answersForServer = Array(childCriteria.size) { Array(childCriteria.size) { 1.0 } }
         var omitted = 0
-        for (i in criteriaIds.indices) {
+        for (i in childCriteria.indices) {
             omitted += i + 1
-            for (j in i + 1 until criteriaIds.size) {
-                val ind = i * criteriaIds.size + j - omitted
+            for (j in i + 1 until childCriteria.size) {
+                val ind = i * childCriteria.size + j - omitted
                 answersForServer[i][j] = answers[ind]
                 answersForServer[j][i] = 1.0 / answers[ind]
             }
         }
-        return
-    }
-    answersForServer = Array(itemIds.size) { Array(itemIds.size) { 1.0 } }
-    var omitted = 0
-    for (i in itemIds.indices) {
-        omitted += i + 1
-        for (j in i + 1 until itemIds.size) {
-            val ind = i * itemIds.size + j - omitted
-            answersForServer[i][j] = answers[ind]
-            answersForServer[j][i] = 1.0 / answers[ind]
+    } else {
+        answersForServer = Array(itemIds.size) { Array(itemIds.size) { 1.0 } }
+        var omitted = 0
+        for (i in itemIds.indices) {
+            omitted += i + 1
+            for (j in i + 1 until itemIds.size) {
+                val ind = i * itemIds.size + j - omitted
+                answersForServer[i][j] = answers[ind]
+                answersForServer[j][i] = 1.0 / answers[ind]
+            }
         }
     }
 }
@@ -156,25 +182,33 @@ fun pushAnswers() {
         matrix.put(JSONArray(item.toList()))
     }
 
-    val idsList = JSONArray(itemIds.toList())
+    val idsList = if (currentCriterion in superCriteria) {
+        val childCriteria = criteriaIds.indices
+            .filter { i -> criteriaParentIds[i] == currentCriterion }
+            .map { i -> criteriaIds[i] }
+        JSONArray(childCriteria)
+    } else {
+        JSONArray(itemIds.toList())
+    }
 
     val jsonObject = JSONObject()
     jsonObject.put("matrix", matrix)
     jsonObject.put("ids", idsList)
 
-    val url = URL("$serverIP/comparison") // Put your URL here
+    val url = if (currentCriterion in superCriteria) {
+        URL("$serverIP/criteria_comparison")
+    } else {
+        URL("$serverIP/item_comparison")
+    }
     val connection = url.openConnection() as HttpURLConnection
     connection.requestMethod = "POST"
-    connection.setRequestProperty("Content-Type", "application/json; utf-8")
-    connection.setRequestProperty("Accept", "application/json")
     connection.doOutput = true
 
-    connection.outputStream.use { os ->
-        val writer = OutputStreamWriter(os, "UTF-8")
+    OutputStreamWriter(connection.outputStream, "UTF-8").use { writer ->
         writer.write(jsonObject.toString())
         writer.flush()
-        writer.close()
     }
+    connection.disconnect()
 
     resetAnswers()
 }
@@ -184,8 +218,22 @@ fun resetAnswers() {
     answersForServer = arrayOf()
 }
 
-fun sendFacilitatorFileToServer(file: Uri): Boolean {
-    // TODO push .json file to server, where .json includes data about items and criteria
+fun sendFacilitatorFileToServer(file: Uri, contentResolver: ContentResolver): Boolean {
+    val inputStream = contentResolver.openInputStream(file)
+    val reader = BufferedReader(InputStreamReader(inputStream))
+    val data = reader.use(BufferedReader::readText)
+
+    val url = URL("$serverIP/facilitator_config")
+    val connection = url.openConnection() as HttpURLConnection
+    connection.requestMethod = "POST"
+    connection.doOutput = true
+
+    OutputStreamWriter(connection.outputStream, "UTF-8").use { writer ->
+        writer.write(data)
+        writer.flush()
+    }
+    connection.disconnect()
+
     return true // return true if success, else return false
 }
 
@@ -193,19 +241,17 @@ fun getRanking() {
     val url = URL("$serverIP/ranking")
     val con = url.openConnection() as HttpURLConnection
     con.requestMethod = "GET"
-    con.setRequestProperty("Content-Type", "application/json")
+    val response = StringBuilder()
 
-    val `in` = BufferedReader(
-        InputStreamReader(con.inputStream)
-    )
-    var inputLine: String?
-    val jsonString = StringBuffer()
-    while (`in`.readLine().also { inputLine = it } != null) {
-        jsonString.append(inputLine)
+    BufferedReader(InputStreamReader(con.inputStream)).use {
+        var inputLine = it.readLine()
+        while (inputLine != null) {
+            response.append(inputLine)
+            inputLine = it.readLine()
+        }
     }
-    `in`.close()
 
-    val json = JSONArray(jsonString.toString())
+    val json = JSONArray(response.toString())
 
     rankingArray = Array(json.length()) { i ->
         json.getString(i)

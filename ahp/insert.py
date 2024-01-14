@@ -5,25 +5,27 @@ cur: sqlite3.Cursor = conn.cursor()
 
 
 def get_criteria_ids_and_names(cur=cur):
-    query = "select id, name, parent_criterion from Criteria order by id"
+    query = "select id, name, description, parent_criterion from Criteria order by id"
     cur.execute(query)
 
     result = cur.fetchall()
     return {
-        "ids": [crit[0] for crit in result],
-        "names": [crit[1] for crit in result],
-        "parent_ids": [crit[2] for crit in result]
+        "criteria_ids": [crit[0] for crit in result],
+        "criteria_names": [crit[1] for crit in result],
+        "criteria_descriptions": [crit[2] for crit in result],
+        "criteria_parent_ids": [crit[3] for crit in result]
     }
 
 
 def get_alternative_ids_and_names(cur=cur):
-    query = "select id, name from Alternatives order by id"
+    query = "select id, name, description from Alternatives order by id"
     cur.execute(query)
     result = cur.fetchall()
 
     return {
-        "ids": [crit[0] for crit in result],
-        "names": [crit[1] for crit in result]
+        "item_ids": [crit[0] for crit in result],
+        "item_names": [crit[1] for crit in result],
+        "item_descriptions": [crit[2] for crit in result]
     }
 
 

@@ -11,13 +11,26 @@ class LocalData(object):
 
 class HTTPRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
-        if re.search('/comparison', self.path):
+        if re.search('/item_comparison', self.path):
             length = int(self.headers.get('content-length'))
             data = self.rfile.read(length).decode('utf8')
 
             result = json.loads(data)
             insert.insert_alternative_ranking(result["ids"], 0, 0, result["matrix"])
             self.send_response(200)
+        elif re.search('/criteria_comparison', self.path):
+            length = int(self.headers.get('content-length'))
+            data = self.rfile.read(length).decode('utf8')
+
+            result = json.loads(data)
+            insert.insert_criteria_ranking(result["ids"], 0, result["matrix"])
+            self.send_response(200)
+        elif re.search('/facilitator_config', self.path):
+            length = int(self.headers.get('content-length'))
+            data = self.rfile.read(length).decode('utf8')
+
+            config = json.loads(data)
+
         else:
             self.send_response(403)
         self.end_headers()
@@ -28,9 +41,10 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
 
-            # Return json, even though it came in as POST URL params
-            # data = json.dumps(LocalData.records[record_id]).encode('utf-8')
-            data = json.dumps(insert.get_alternative_ids_and_names()).encode('utf-8')
+            items = insert.get_alternative_ids_and_names()
+            criteria = insert.get_criteria_ids_and_names()
+
+            data = json.dumps({**items, **criteria}).encode('utf-8')
 
             self.wfile.write(data)
         elif re.search('/ranking', self.path):
@@ -38,11 +52,22 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
 
-            # Return json, even though it came in as POST URL params
-            # data = json.dumps(LocalData.records[record_id]).encode('utf-8')
-            alternatives = map(lambda x: x[1], sorted(ahp.get_alternatives()))
+            alternatives = ahp.get_alternatives()
 
-            data = json.dumps(alternatives).encode('utf-8')
+            bottom_criteria = ahp.get_bottom_criteria()
+
+            experts = ahp.get_experts()
+
+            ranking = ahp.create_ranking(alternatives, bottom_criteria, experts)
+
+            print(alternatives)
+            print(ranking)
+
+            result = list(map(lambda x: x[1][1], sorted(zip(ranking, alternatives), reverse=True)))
+
+            print(f"result: {result}")
+
+            data = json.dumps(result).encode('utf-8')
 
             self.wfile.write(data)
         else:

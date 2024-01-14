@@ -39,7 +39,9 @@ def get_alternatives(cur=cur):
     query = "select * from alternatives order by id"
     cur.execute(query)
 
-    return cur.fetchall()
+    dupa = cur.fetchall()
+
+    return dupa
 
 
 def get_alternatives_with_desc(cur=cur):
