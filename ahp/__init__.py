@@ -45,9 +45,7 @@ def get_alternatives(cur=cur):
         """
     cur.execute(query)
 
-    dupa = cur.fetchall()
-
-    return dupa
+    return cur.fetchall()
 
 
 def get_alternatives_with_desc(cur=cur):

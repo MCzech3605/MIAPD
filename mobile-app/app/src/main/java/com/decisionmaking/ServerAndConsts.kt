@@ -2,7 +2,6 @@ package com.decisionmaking
 
 import android.content.ContentResolver
 import android.net.Uri
-import android.util.Log
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.json.JSONArray
@@ -12,7 +11,6 @@ import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
-import java.util.Arrays
 
 const val serverIP = "http://192.168.1.22:8000"
 

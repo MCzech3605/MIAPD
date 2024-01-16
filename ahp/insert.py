@@ -196,5 +196,4 @@ if __name__ == "__main__":
     result = cur.fetchall()
     print("\n".join(map(str, result)))
 
-
     print(criteria, alternatives)
