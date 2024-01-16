@@ -158,6 +158,7 @@ fun addAndFinish(ans: Double, context: Context) {
             Toast.makeText(context, "Answers inserted correctly", Toast.LENGTH_LONG)
         toast.show()
         currentCriterion++
+        currentCriterionId = if(currentCriterion < criteriaIds.size) criteriaIds[currentCriterion] else -1
         context.getActivity()?.finish()
         return
     }

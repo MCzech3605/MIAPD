@@ -62,7 +62,7 @@ class MainActivity : ComponentActivity() {
 
 fun enterExpertsArea(mContext: Context) {
     if (currentCriterion < criteriaIds.size) {
-        if (currentCriterion == 0)
+        if (currentCriterion >= 0)
             writeAlternatives()
         val intent = Intent(mContext, ExpertsActivity::class.java)
         intent.putExtra("index", 0)

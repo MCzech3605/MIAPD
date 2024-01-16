@@ -47,6 +47,9 @@ def insert_criteria_ranking(c: list[int], expert_id: int, m: list[list[int]], cu
     """
     n = len(m)
 
+    print("crit_ids:", c)
+    print("matrix:", m)
+
     for i in range(n):
         for j in range(n):
             if i == j: continue
@@ -71,6 +74,10 @@ def insert_alternative_ranking(a: list[int], criterion: int, expert_id: int, m: 
     a - list of compared alternatives, sorted in ascending order
     """
     n = len(m)
+
+    print("alt_ids:", a)
+    print("criterion:", criterion)
+    print("matrix:", m)
 
     for i in range(n):
         for j in range(n):
@@ -156,4 +163,13 @@ def get_expert_id(name):
 if __name__ == "__main__":
     criteria = get_criteria_ids_and_names()
     alternatives = get_alternative_ids_and_names()
+
+    query = """
+    select * from AlternativeComparisons
+    """
+
+    cur.execute(query)
+    result = cur.fetchall()
+    print("\n".join(map(str, result)))
+
     print(criteria, alternatives)

@@ -2,6 +2,7 @@ package com.decisionmaking
 
 import android.content.ContentResolver
 import android.net.Uri
+import android.util.Log
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.json.JSONArray
@@ -11,6 +12,7 @@ import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
+import java.util.Arrays
 
 const val serverIP = "http://192.168.1.22:8000"
 
@@ -34,7 +36,9 @@ var criteriaParentIds: Array<Int> = arrayOf()
 
 var superCriteria: MutableSet<Int> = mutableSetOf(-1)
 
-var currentCriterion: Int = 0
+var currentCriterion: Int = -1
+
+var currentCriterionId: Int = -1
 
 var answers: Array<Double> = arrayOf()
 
@@ -112,14 +116,16 @@ fun getItems() {
     con.disconnect()
 
     currentCriterion = -1
+    currentCriterionId = -1
 }
 
 fun writeAlternatives() {
     resetAlternatives()
-    if (currentCriterion in superCriteria) {
+
+    if (currentCriterionId in superCriteria) {
 
         val childCriteria = criteriaIds.indices
-            .filter { i -> criteriaParentIds[i] == currentCriterion }
+            .filter { i -> criteriaParentIds[i] == currentCriterionId }
             .map { i -> Pair(criteriaNames[i], criteriaDescriptions[i]) }
 
         for (i in childCriteria.indices) {
@@ -144,9 +150,10 @@ fun resetAlternatives() {
 }
 
 fun writeServerAnswers() {
-    if (currentCriterion in superCriteria) {
+
+    if (currentCriterionId in superCriteria) {
         val childCriteria = criteriaIds.indices
-            .filter { i -> criteriaParentIds[i] == currentCriterion }
+            .filter { i -> criteriaParentIds[i] == currentCriterionId }
 
         answersForServer = Array(childCriteria.size) { Array(childCriteria.size) { 1.0 } }
         var omitted = 0
@@ -181,9 +188,9 @@ fun pushAnswers() {
         matrix.put(JSONArray(item.toList()))
     }
 
-    val idsList = if (currentCriterion in superCriteria) {
+    val idsList = if (currentCriterionId in superCriteria) {
         val childCriteria = criteriaIds.indices
-            .filter { i -> criteriaParentIds[i] == currentCriterion }
+            .filter { i -> criteriaParentIds[i] == currentCriterionId }
             .map { i -> criteriaIds[i] }
         JSONArray(childCriteria)
     } else {
@@ -234,6 +241,7 @@ fun sendFacilitatorFileToServer(file: Uri, contentResolver: ContentResolver): Bo
         writer.write(data)
         writer.flush()
     }
+    connection.responseCode
     connection.disconnect()
 
     return true // return true if success, else return false

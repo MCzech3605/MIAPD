@@ -12,22 +12,22 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             data = self.rfile.read(length).decode('utf8')
 
             result = json.loads(data)
-            insert.insert_alternative_ranking(result["ids"], result["criterionId"], result["exportId"], result["matrix"])
+            insert.insert_alternative_ranking(result["ids"], result["criterionId"], result["expertId"], result["matrix"])
             self.send_response(200)
         elif re.search('/criteria_comparison', self.path):
             length = int(self.headers.get('content-length'))
             data = self.rfile.read(length).decode('utf8')
 
             result = json.loads(data)
-            insert.insert_criteria_ranking(result["ids"], result["exportId"], result["matrix"])
+            insert.insert_criteria_ranking(result["ids"], result["expertId"], result["matrix"])
             self.send_response(200)
         elif re.search('/facilitator_config', self.path):
             length = int(self.headers.get('content-length'))
             data = self.rfile.read(length).decode('utf8')
 
             config = json.loads(data)
-
             insert.create_ranking(config)
+            print("new ranking created")
 
             self.send_response(200)
         else:
@@ -44,6 +44,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
             items = insert.get_alternative_ids_and_names()
             criteria = insert.get_criteria_ids_and_names()
+
 
             data = json.dumps({**items, **criteria}).encode('utf-8')
 
