@@ -1,12 +1,14 @@
-insert into alternatives (name, description) values
-    ('alt1', 'x'),
-    ('alt2', 'x'),
-    ('alt3', 'x');
+insert into ranking values (NULL);
 
-insert into criteria (name, description, parent_criterion) values
-    ('crit1', 'x', NULL),
-    ('crit2', 'x', NULL),
-    ('crit3', 'x', NULL);
+insert into alternatives (name, description, ranking) values
+    ('alt1', 'x', 1),
+    ('alt2', 'x', 1),
+    ('alt3', 'x', 1);
+
+insert into criteria (name, description, parent_criterion, ranking) values
+    ('crit1', 'x', NULL, 1),
+    ('crit2', 'x', NULL, 1),
+    ('crit3', 'x', NULL, 1);
 
 insert into experts (name, email) values
     ('e1', 'x@a.com'),
