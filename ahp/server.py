@@ -67,7 +67,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             print(alternatives)
             print(ranking)
 
-            result = list(map(lambda x: x[1][1], sorted(zip(ranking, alternatives), reverse=True)))
+            result = list(map(lambda x: x[1][1], sorted(zip(ranking, alternatives))))
 
             print(f"result: {result}")
 

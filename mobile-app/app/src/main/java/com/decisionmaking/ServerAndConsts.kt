@@ -188,26 +188,21 @@ fun pushAnswers() {
         matrix.put(JSONArray(item.toList()))
     }
 
-    val idsList = if (currentCriterionId in superCriteria) {
+    val (idsList, url) = if (currentCriterionId in superCriteria) {
         val childCriteria = criteriaIds.indices
             .filter { i -> criteriaParentIds[i] == currentCriterionId }
             .map { i -> criteriaIds[i] }
-        JSONArray(childCriteria)
+        JSONArray(childCriteria) to URL("$serverIP/criteria_comparison")
     } else {
-        JSONArray(itemIds.toList())
+        JSONArray(itemIds.toList()) to URL("$serverIP/item_comparison")
     }
 
     val jsonObject = JSONObject()
     jsonObject.put("matrix", matrix)
     jsonObject.put("ids", idsList)
-    jsonObject.put("criterionId", currentCriterion)
+    jsonObject.put("criterionId", currentCriterionId)
     jsonObject.put("expertId", expertId)
 
-    val url = if (currentCriterion in superCriteria) {
-        URL("$serverIP/criteria_comparison")
-    } else {
-        URL("$serverIP/item_comparison")
-    }
     val connection = url.openConnection() as HttpURLConnection
     connection.requestMethod = "POST"
     connection.doOutput = true
@@ -285,5 +280,4 @@ fun getExpertIdFromServer() {
     }
 
     expertId = response.toString().toInt()
-    // TODO get expertId from server based on expertNick variable
 }
