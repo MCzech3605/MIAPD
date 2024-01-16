@@ -1,5 +1,5 @@
 -- Created by Vertabelo (http://vertabelo.com)
--- Last modification date: 2023-11-21 21:19:22.652
+-- Last modification date: 2024-01-16 12:41:24.407
 
 -- tables
 -- Table: AlternativeComparisons
@@ -9,9 +9,7 @@ CREATE TABLE AlternativeComparisons (
     first_alternative integer NOT NULL,
     second_alternative integer NOT NULL,
     expert integer NOT NULL,
-    scale integer NOT NULL,
-    CONSTRAINT AlternativeComparisons_Scales FOREIGN KEY (scale)
-    REFERENCES Scales (id),
+    scale double NOT NULL,
     CONSTRAINT alternative_comparison_expert FOREIGN KEY (expert)
     REFERENCES Experts (id),
     CONSTRAINT AlternativeComparisons_Criteria FOREIGN KEY (criterion)
@@ -30,7 +28,7 @@ CREATE TABLE AlternativeCriteriaDesc (
     description text NOT NULL,
     CONSTRAINT described_alternative FOREIGN KEY (alternative)
     REFERENCES Alternatives (id),
-    CONSTRAINT AlternativeCriteriaDesc_Criteria FOREIGN KEY (criterion)
+    CONSTRAINT considered_criterion FOREIGN KEY (criterion)
     REFERENCES Criteria (id)
 );
 
@@ -57,9 +55,7 @@ CREATE TABLE CriteriaComparisons (
     first_criterion integer NOT NULL,
     second_criterion integer NOT NULL,
     expert integer NOT NULL,
-    scale integer NOT NULL,
-    CONSTRAINT CriteriaComparisons_Scales FOREIGN KEY (scale)
-    REFERENCES Scales (id),
+    scale double NOT NULL,
     CONSTRAINT criteria_comparison_expert FOREIGN KEY (expert)
     REFERENCES Experts (id),
     CONSTRAINT second_criterion_ref FOREIGN KEY (second_criterion)
@@ -73,13 +69,6 @@ CREATE TABLE Experts (
     id integer NOT NULL CONSTRAINT Experts_pk PRIMARY KEY AUTOINCREMENT,
     name text NOT NULL,
     email text NOT NULL CHECK (email LIKE '%@%.%')
-);
-
--- Table: Scales
-CREATE TABLE Scales (
-    id integer NOT NULL CONSTRAINT Scales_pk PRIMARY KEY AUTOINCREMENT,
-    value double NOT NULL,
-    description text NOT NULL
 );
 
 -- End of file.

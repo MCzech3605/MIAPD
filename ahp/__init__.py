@@ -119,9 +119,8 @@ def create_ranking(alternatives, bottom_criteria, expert_ids, cur=cur):
         for crit in bottom_criteria:
             crit_id = crit[0]
             query = f"""
-                select first_alternative, second_alternative, value
+                select first_alternative, second_alternative, scale
                 from AlternativeComparisons 
-                join scales on scale=scales.id
                 where criterion={crit_id} and expert={expert_id}
                 """
             cur.execute(query)
@@ -157,9 +156,8 @@ def create_ranking(alternatives, bottom_criteria, expert_ids, cur=cur):
         ma = [[[1 for _ in g[1]] for _ in g[1]] for g in children_graph]
 
         query = f"""
-            select first_criterion, second_criterion, parent_criterion, value
+            select first_criterion, second_criterion, parent_criterion, scale
             from CriteriaComparisons 
-            join scales on scale=scales.id
             join Criteria on first_criterion=Criteria.id
             where expert={expert_id}
             """

@@ -127,14 +127,6 @@ def create_ranking(decoded_json):
             conn.commit()
 
 
-    for s in decoded_json["scales"]:
-        query = "insert into scales (value, description) values (?, ?)"
-
-        info = (s["value"], s["description"])
-        cur.execute(query, info)
-        conn.commit()
-
-
     for e in decoded_json["experts"]:
         query = "insert into experts (name, email) values (?, ?)"
 

@@ -36,20 +36,6 @@
             "parent_criterion": "c2"
         }
     ],
-    "scales": [
-        {
-            "value": 0.5,
-            "description": "bad"
-        },
-        {
-            "value": 1.0,
-            "description": "neutral"
-        },
-        {
-            "value": 2.0,
-            "description": "good"
-        }
-    ],
     "experts": [
         {
             "name": "e1",
