@@ -7,13 +7,16 @@ import androidx.compose.ui.unit.sp
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
-import java.io.File
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
 
 const val serverIP = "http://192.168.1.22:8000"
+
+var expertNick: String = ""
+
+var expertId: Int = -1
 
 var itemIds: Array<Int> = arrayOf()
 
@@ -117,7 +120,7 @@ fun writeAlternatives() {
 
         val childCriteria = criteriaIds.indices
             .filter { i -> criteriaParentIds[i] == currentCriterion }
-            .map { i -> Pair(criteriaNames[i], criteriaDescriptions[i])}
+            .map { i -> Pair(criteriaNames[i], criteriaDescriptions[i]) }
 
         for (i in childCriteria.indices) {
             for (j in i + 1 until childCriteria.size) {
@@ -257,3 +260,6 @@ fun getRanking() {
     // rankingArray = ...
 }
 
+fun getExpertIdFromServer() {
+    // TODO get expertId from server based on expertNick variable
+}
