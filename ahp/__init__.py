@@ -38,7 +38,11 @@ def calculate_steps(tuples):
 
 
 def get_alternatives(cur=cur): 
-    query = "select * from alternatives order by id"
+    query = """
+        select * from alternatives
+        where ranking=(select id from ranking order by id desc limit 1)
+        order by id
+        """
     cur.execute(query)
 
     dupa = cur.fetchall()
@@ -67,7 +71,11 @@ def get_alternatives_with_desc(cur=cur):
 
 
 def get_criteria():
-    query = "select id, parent_criterion from criteria order by id"
+    query = """
+        select id, parent_criterion from criteria
+        where ranking=(select id from ranking order by id desc limit 1)
+        order by id
+        """
     cur.execute(query)
 
     return cur.fetchall()
@@ -76,10 +84,11 @@ def get_criteria():
 def get_bottom_criteria(cur=cur):
     query = f"""
         select * from criteria
-        where id not in (
+        where id not in ( 
             select parent_criterion from criteria
             where parent_criterion is not null
-        )
+        ) and
+        ranking=(select id from ranking order by id desc limit 1)
         """
     cur.execute(query)
 
@@ -159,7 +168,8 @@ def create_ranking(alternatives, bottom_criteria, expert_ids, cur=cur):
             select first_criterion, second_criterion, parent_criterion, scale
             from CriteriaComparisons 
             join Criteria on first_criterion=Criteria.id
-            where expert={expert_id}
+            where expert={expert_id} and
+            ranking=(select id from ranking order by id desc limit 1)
             """
         cur.execute(query)
         comparisons = cur.fetchall()

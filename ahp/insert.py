@@ -5,7 +5,11 @@ cur: sqlite3.Cursor = conn.cursor()
 
 
 def get_criteria_ids_and_names(cur=cur):
-    query = "select id, name, description, parent_criterion from Criteria order by id"
+    query = """
+        select id, name, description, parent_criterion from Criteria
+        where ranking=(select id from ranking order by id desc limit 1)
+        order by id
+        """
     cur.execute(query)
 
     result = cur.fetchall()
@@ -18,7 +22,11 @@ def get_criteria_ids_and_names(cur=cur):
 
 
 def get_alternative_ids_and_names(cur=cur):
-    query = "select id, name, description from Alternatives order by id"
+    query = """
+        select id, name, description from Alternatives
+        where ranking=(select id from ranking order by id desc limit 1)
+        order by id
+        """
     cur.execute(query)
     result = cur.fetchall()
 
@@ -84,17 +92,21 @@ def create_ranking(decoded_json):
     insert them into the database
     """
 
+    cur.execute("insert into ranking values (NULL)")
+    conn.commit()
+    ranking_id = cur.lastrowid
+
     crit_ids = {}
     for c in decoded_json["criteria"]:
         query = """
-        insert into criteria (name, description, parent_criterion)
-        values (?, ?, ?)
+        insert into criteria (name, description, parent_criterion, ranking)
+        values (?, ?, ?, ?)
         """
 
         p_str = c["parent_criterion"]
         parent = crit_ids[p_str] if p_str != "" else None
 
-        info = (c["name"], c["description"], parent)
+        info = (c["name"], c["description"], parent, ranking_id)
         cur.execute(query, info)
         conn.commit()
 
@@ -103,11 +115,11 @@ def create_ranking(decoded_json):
 
     for a in decoded_json["alternatives"]:
         query = """
-        insert into alternatives (name, description)
-        values (?, ?)
+        insert into alternatives (name, description, ranking)
+        values (?, ?, ?)
         """
 
-        info = (a["name"], a["description"])
+        info = (a["name"], a["description"], ranking_id)
         cur.execute(query, info)
         conn.commit()
 

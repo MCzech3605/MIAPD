@@ -1,5 +1,5 @@
 -- Created by Vertabelo (http://vertabelo.com)
--- Last modification date: 2024-01-16 12:41:24.407
+-- Last modification date: 2024-01-16 13:20:53.381
 
 -- tables
 -- Table: AlternativeComparisons
@@ -36,7 +36,10 @@ CREATE TABLE AlternativeCriteriaDesc (
 CREATE TABLE Alternatives (
     id integer NOT NULL CONSTRAINT Alternatives_pk PRIMARY KEY AUTOINCREMENT,
     name text NOT NULL,
-    description text NOT NULL
+    description text NOT NULL,
+    ranking integer NOT NULL,
+    CONSTRAINT Alternatives_Ranking FOREIGN KEY (ranking)
+    REFERENCES Ranking (id)
 );
 
 -- Table: Criteria
@@ -45,8 +48,11 @@ CREATE TABLE Criteria (
     name text NOT NULL,
     description text NOT NULL,
     parent_criterion integer,
+    ranking integer NOT NULL,
     CONSTRAINT subcriterion_parent FOREIGN KEY (parent_criterion)
-    REFERENCES Criteria (id)
+    REFERENCES Criteria (id),
+    CONSTRAINT Criteria_Ranking FOREIGN KEY (ranking)
+    REFERENCES Ranking (id)
 );
 
 -- Table: CriteriaComparisons
@@ -69,6 +75,11 @@ CREATE TABLE Experts (
     id integer NOT NULL CONSTRAINT Experts_pk PRIMARY KEY AUTOINCREMENT,
     name text NOT NULL,
     email text NOT NULL CHECK (email LIKE '%@%.%')
+);
+
+-- Table: Ranking
+CREATE TABLE Ranking (
+    id integer NOT NULL CONSTRAINT Ranking_pk PRIMARY KEY AUTOINCREMENT
 );
 
 -- End of file.
