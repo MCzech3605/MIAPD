@@ -31,6 +31,8 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
             config = json.loads(data)
 
+            insert.create_ranking(config)
+
         else:
             self.send_response(403)
         self.end_headers()
