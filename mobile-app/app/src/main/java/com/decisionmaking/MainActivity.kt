@@ -1,5 +1,6 @@
 package com.decisionmaking
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.StrictMode
@@ -59,6 +60,23 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+fun enterExpertsArea(mContext: Context) {
+    if (currentCriterion < criteriaIds.size) {
+        if (currentCriterion == 0)
+            writeAlternatives()
+        val intent = Intent(mContext, ExpertsActivity::class.java)
+        intent.putExtra("index", 0)
+        mContext.startActivity(intent)
+    } else {
+        val toast = Toast.makeText(
+            mContext,
+            "All answers provided. Please request new questions",
+            Toast.LENGTH_LONG
+        )
+        toast.show()
+    }
+}
+
 @Composable
 fun MainMenu(name: String, modifier: Modifier = Modifier) {
     var showDialog by remember { mutableStateOf(false) }
@@ -99,6 +117,7 @@ fun MainMenu(name: String, modifier: Modifier = Modifier) {
                                 expertNick = text
                                 getExpertIdFromServer()
                                 showDialog = false
+                                if (expertId != -1) enterExpertsArea(mContext)
                             },
                             modifier = Modifier.padding(10.dp)
                         ) {
@@ -137,19 +156,8 @@ fun MainMenu(name: String, modifier: Modifier = Modifier) {
                 onClick = {
                     if (expertId == -1) {
                         showDialog = true
-                    } else if (currentCriterion < criteriaIds.size) {
-                        if (currentCriterion == 0)
-                            writeAlternatives()
-                        val intent = Intent(mContext, ExpertsActivity::class.java)
-                        intent.putExtra("index", 0)
-                        mContext.startActivity(intent)
                     } else {
-                        val toast = Toast.makeText(
-                            mContext,
-                            "All answers provided. Please request new questions",
-                            Toast.LENGTH_LONG
-                        )
-                        toast.show()
+                        enterExpertsArea(mContext)
                     }
                 },
                 modifier = Modifier.padding(10.dp)

@@ -108,7 +108,7 @@ fun getItems() {
             criteriaParentIds1.getInt(i)
         }
     }
-
+    con.responseCode
     con.disconnect()
 
     currentCriterion = -1
@@ -193,6 +193,8 @@ fun pushAnswers() {
     val jsonObject = JSONObject()
     jsonObject.put("matrix", matrix)
     jsonObject.put("ids", idsList)
+    jsonObject.put("criterionId", currentCriterion)
+    jsonObject.put("expertId", expertId)
 
     val url = if (currentCriterion in superCriteria) {
         URL("$serverIP/criteria_comparison")
@@ -207,6 +209,7 @@ fun pushAnswers() {
         writer.write(jsonObject.toString())
         writer.flush()
     }
+    connection.responseCode
     connection.disconnect()
 
     resetAnswers()
@@ -255,11 +258,24 @@ fun getRanking() {
     rankingArray = Array(json.length()) { i ->
         json.getString(i)
     }
-
+    con.responseCode
     con.disconnect()
-    // rankingArray = ...
 }
 
 fun getExpertIdFromServer() {
+    val url = URL("$serverIP/expert_id/$expertNick")
+    val con = url.openConnection() as HttpURLConnection
+    con.requestMethod = "GET"
+    val response = StringBuilder()
+
+    BufferedReader(InputStreamReader(con.inputStream)).use {
+        var inputLine = it.readLine()
+        while (inputLine != null) {
+            response.append(inputLine)
+            inputLine = it.readLine()
+        }
+    }
+
+    expertId = response.toString().toInt()
     // TODO get expertId from server based on expertNick variable
 }

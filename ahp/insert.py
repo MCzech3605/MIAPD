@@ -134,6 +134,12 @@ def create_ranking(decoded_json):
         cur.execute(query, info)
         conn.commit()
 
+def get_expert_id(name):
+    query = "select id, name from experts where name == ?"
+
+    cur.execute(query, (name,))
+    result = cur.fetchall()
+    return -1 if len(result) == 0 else result[0][0]
 
 if __name__ == "__main__":
     criteria = get_criteria_ids_and_names()
