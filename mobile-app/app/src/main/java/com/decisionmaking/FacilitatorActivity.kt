@@ -125,7 +125,7 @@ fun FileLoader() {
     )
     ElevatedButton(
         onClick = {
-            filePicker.launch("application/json")  
+            filePicker.launch("application/json")
         },
         modifier = Modifier.padding(bottom = 200.dp)
     ) {

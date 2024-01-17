@@ -2,8 +2,9 @@ import json
 import logging
 import re
 from http.server import BaseHTTPRequestHandler, HTTPServer
-import insert
-import ahp
+import database
+import ahp_logic
+
 
 class HTTPRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
@@ -12,21 +13,21 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             data = self.rfile.read(length).decode('utf8')
 
             result = json.loads(data)
-            insert.insert_alternative_ranking(result["ids"], result["criterionId"], result["expertId"], result["matrix"])
+            database.insert_alternative_ranking(result["ids"], result["criterionId"], result["expertId"], result["matrix"])
             self.send_response(200)
         elif re.search('/criteria_comparison', self.path):
             length = int(self.headers.get('content-length'))
             data = self.rfile.read(length).decode('utf8')
 
             result = json.loads(data)
-            insert.insert_criteria_ranking(result["ids"], result["expertId"], result["matrix"])
+            database.insert_criteria_ranking(result["ids"], result["expertId"], result["matrix"])
             self.send_response(200)
         elif re.search('/facilitator_config', self.path):
             length = int(self.headers.get('content-length'))
             data = self.rfile.read(length).decode('utf8')
 
             config = json.loads(data)
-            insert.create_ranking(config)
+            database.create_ranking(config)
             print("new ranking created")
 
             self.send_response(200)
@@ -42,9 +43,8 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
             print(self.path)
 
-            items = insert.get_alternative_ids_and_names()
-            criteria = insert.get_criteria_ids_and_names()
-
+            items = database.get_alternative_ids_and_names()
+            criteria = database.get_criteria_ids_and_names()
 
             data = json.dumps({**items, **criteria}).encode('utf-8')
 
@@ -56,13 +56,10 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
 
-            alternatives = ahp.get_alternatives()
-
-            bottom_criteria = ahp.get_bottom_criteria()
-
-            experts = ahp.get_experts()
-
-            ranking = ahp.create_ranking(alternatives, bottom_criteria, experts)
+            alternatives = ahp_logic.get_alternatives()
+            bottom_criteria = ahp_logic.get_bottom_criteria()
+            experts = ahp_logic.get_experts()
+            ranking = ahp_logic.create_ranking(alternatives, bottom_criteria, experts)
 
             print(alternatives)
             print(ranking)
@@ -75,7 +72,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
             self.wfile.write(data)
         elif re.search('/expert_id/.*', self.path):
-            expert_id = insert.get_expert_id(self.path.removeprefix("/expert_id/"))
+            expert_id = database.get_expert_id(self.path.removeprefix("/expert_id/"))
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
             self.end_headers()

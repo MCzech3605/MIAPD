@@ -3,7 +3,7 @@ from pprint import pprint
 from itertools import groupby
 import numpy as np
 
-conn: sqlite3.Connection = sqlite3.connect("baza.db")
+conn: sqlite3.Connection = sqlite3.connect("/app/baza.db")
 cur: sqlite3.Cursor = conn.cursor()
 
 
@@ -171,6 +171,7 @@ def create_ranking(alternatives, bottom_criteria, expert_ids, cur=cur):
             """
         cur.execute(query)
         comparisons = cur.fetchall()
+
 
         for first, second, p, val in comparisons:
             if p is None: p = -1

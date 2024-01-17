@@ -1,6 +1,6 @@
 import sqlite3
 
-conn: sqlite3.Connection = sqlite3.connect("baza.db")
+conn: sqlite3.Connection = sqlite3.connect("/app/baza.db")
 cur: sqlite3.Cursor = conn.cursor()
 
 
