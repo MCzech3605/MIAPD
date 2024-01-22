@@ -28,7 +28,6 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
             config = json.loads(data)
             database.create_ranking(config)
-            print("new ranking created")
 
             self.send_response(200)
         else:
@@ -41,14 +40,10 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
 
-            print(self.path)
-
             items = database.get_alternative_ids_and_names()
             criteria = database.get_criteria_ids_and_names()
 
             data = json.dumps({**items, **criteria}).encode('utf-8')
-
-            print(json.dumps({**items, **criteria}))
 
             self.wfile.write(data)
         elif re.search('/ranking', self.path):
@@ -61,12 +56,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             experts = ahp_logic.get_experts()
             ranking = ahp_logic.create_ranking(alternatives, bottom_criteria, experts)
 
-            print(alternatives)
-            print(ranking)
-
             result = list(map(lambda x: x[1][1], sorted(zip(ranking, alternatives))))
-
-            print(f"result: {result}")
 
             data = json.dumps(result).encode('utf-8')
 
@@ -83,7 +73,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
 
 if __name__ == '__main__':
-    server = HTTPServer(('0.0.0.0', 8000), HTTPRequestHandler)
+    server = HTTPServer(('localhost', 8000), HTTPRequestHandler)
     logging.info('Starting httpd...\n')
     try:
         server.serve_forever()
