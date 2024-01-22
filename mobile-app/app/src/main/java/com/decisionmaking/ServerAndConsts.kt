@@ -34,7 +34,9 @@ var criteriaParentIds: Array<Int> = arrayOf()
 
 var superCriteria: MutableSet<Int> = mutableSetOf(-1)
 
-var currentCriterion: Int = 0
+var currentCriterion: Int = -1
+
+var currentCriterionId: Int = -1
 
 var answers: Array<Double> = arrayOf()
 
@@ -108,18 +110,20 @@ fun getItems() {
             criteriaParentIds1.getInt(i)
         }
     }
-
+    con.responseCode
     con.disconnect()
 
     currentCriterion = -1
+    currentCriterionId = -1
 }
 
 fun writeAlternatives() {
     resetAlternatives()
-    if (currentCriterion in superCriteria) {
+
+    if (currentCriterionId in superCriteria) {
 
         val childCriteria = criteriaIds.indices
-            .filter { i -> criteriaParentIds[i] == currentCriterion }
+            .filter { i -> criteriaParentIds[i] == currentCriterionId }
             .map { i -> Pair(criteriaNames[i], criteriaDescriptions[i]) }
 
         for (i in childCriteria.indices) {
@@ -144,9 +148,10 @@ fun resetAlternatives() {
 }
 
 fun writeServerAnswers() {
-    if (currentCriterion in superCriteria) {
+
+    if (currentCriterionId in superCriteria) {
         val childCriteria = criteriaIds.indices
-            .filter { i -> criteriaParentIds[i] == currentCriterion }
+            .filter { i -> criteriaParentIds[i] == currentCriterionId }
 
         answersForServer = Array(childCriteria.size) { Array(childCriteria.size) { 1.0 } }
         var omitted = 0
@@ -181,24 +186,21 @@ fun pushAnswers() {
         matrix.put(JSONArray(item.toList()))
     }
 
-    val idsList = if (currentCriterion in superCriteria) {
+    val (idsList, url) = if (currentCriterionId in superCriteria) {
         val childCriteria = criteriaIds.indices
-            .filter { i -> criteriaParentIds[i] == currentCriterion }
+            .filter { i -> criteriaParentIds[i] == currentCriterionId }
             .map { i -> criteriaIds[i] }
-        JSONArray(childCriteria)
+        JSONArray(childCriteria) to URL("$serverIP/criteria_comparison")
     } else {
-        JSONArray(itemIds.toList())
+        JSONArray(itemIds.toList()) to URL("$serverIP/item_comparison")
     }
 
     val jsonObject = JSONObject()
     jsonObject.put("matrix", matrix)
     jsonObject.put("ids", idsList)
+    jsonObject.put("criterionId", currentCriterionId)
+    jsonObject.put("expertId", expertId)
 
-    val url = if (currentCriterion in superCriteria) {
-        URL("$serverIP/criteria_comparison")
-    } else {
-        URL("$serverIP/item_comparison")
-    }
     val connection = url.openConnection() as HttpURLConnection
     connection.requestMethod = "POST"
     connection.doOutput = true
@@ -207,6 +209,7 @@ fun pushAnswers() {
         writer.write(jsonObject.toString())
         writer.flush()
     }
+    connection.responseCode
     connection.disconnect()
 
     resetAnswers()
@@ -231,6 +234,7 @@ fun sendFacilitatorFileToServer(file: Uri, contentResolver: ContentResolver): Bo
         writer.write(data)
         writer.flush()
     }
+    connection.responseCode
     connection.disconnect()
 
     return true // return true if success, else return false
@@ -255,11 +259,23 @@ fun getRanking() {
     rankingArray = Array(json.length()) { i ->
         json.getString(i)
     }
-
+    con.responseCode
     con.disconnect()
-    // rankingArray = ...
 }
 
 fun getExpertIdFromServer() {
-    // TODO get expertId from server based on expertNick variable
+    val url = URL("$serverIP/expert_id/$expertNick")
+    val con = url.openConnection() as HttpURLConnection
+    con.requestMethod = "GET"
+    val response = StringBuilder()
+
+    BufferedReader(InputStreamReader(con.inputStream)).use {
+        var inputLine = it.readLine()
+        while (inputLine != null) {
+            response.append(inputLine)
+            inputLine = it.readLine()
+        }
+    }
+
+    expertId = response.toString().toInt()
 }

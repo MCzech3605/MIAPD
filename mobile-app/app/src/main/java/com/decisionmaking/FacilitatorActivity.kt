@@ -115,6 +115,8 @@ fun FileLoader() {
             if (sendFacilitatorFileToServer(fileUri!!, mContext.contentResolver)) {
                 val toast = Toast.makeText(mContext, "File sent correctly", Toast.LENGTH_SHORT)
                 toast.show()
+                getItems()
+                writeAlternatives()
             } else {
                 val toast = Toast.makeText(mContext, "Error sending file", Toast.LENGTH_SHORT)
                 toast.show()
@@ -123,7 +125,7 @@ fun FileLoader() {
     )
     ElevatedButton(
         onClick = {
-            filePicker.launch("application/json")  
+            filePicker.launch("application/json")
         },
         modifier = Modifier.padding(bottom = 200.dp)
     ) {

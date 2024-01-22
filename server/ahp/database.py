@@ -1,6 +1,6 @@
 import sqlite3
 
-conn: sqlite3.Connection = sqlite3.connect("baza.db")
+conn: sqlite3.Connection = sqlite3.connect("/app/baza.db")
 cur: sqlite3.Cursor = conn.cursor()
 
 
@@ -146,8 +146,47 @@ def create_ranking(decoded_json):
         cur.execute(query, info)
         conn.commit()
 
+def get_expert_id(name):
+    query = "select id, name from experts where name == ?"
+
+    cur.execute(query, (name,))
+    result = cur.fetchall()
+    return -1 if len(result) == 0 else result[0][0]
+
+def empty_database(cur=cur):
+    cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    tables = cur.fetchall()
+
+    for table_name in tables:
+        try:
+            cur.execute(f"DELETE FROM {table_name[0]};")
+            print(f"All records deleted from table {table_name[0]}")
+        except sqlite3.OperationalError as e:
+            print(f"An error occurred: {e}")
+
+    conn.commit()
+    conn.close()
 
 if __name__ == "__main__":
     criteria = get_criteria_ids_and_names()
     alternatives = get_alternative_ids_and_names()
+
+    query = """
+    select * from Alternatives
+    """
+
+    cur.execute(query)
+    result = cur.fetchall()
+    print("\n".join(map(str, result)))
+
+    print("\n\n\n")
+
+    query = """
+        select * from AlternativeComparisons
+        """
+
+    cur.execute(query)
+    result = cur.fetchall()
+    print("\n".join(map(str, result)))
+
     print(criteria, alternatives)
