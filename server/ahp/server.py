@@ -73,7 +73,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
 
 if __name__ == '__main__':
-    server = HTTPServer(('localhost', 8000), HTTPRequestHandler)
+    server = HTTPServer(('0.0.0.0', 8000), HTTPRequestHandler)
     logging.info('Starting httpd...\n')
     try:
         server.serve_forever()
