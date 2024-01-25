@@ -56,7 +56,7 @@ def insert_criteria_ranking(c: list[int], expert_id: int, m: list[list[int]], cu
                 values (?, ?, ?, ?)
                 """
 
-            info = (c[i], c[j], expert_id, int(m[i][j]))
+            info = (c[i], c[j], expert_id, m[i][j])
             cur.execute(query, info)
             conn.commit()
 
