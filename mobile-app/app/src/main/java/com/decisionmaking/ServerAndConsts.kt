@@ -12,7 +12,7 @@ import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
 
-const val serverIP = "http://192.168.1.22:8000"
+const val serverIP = "http://ahpserver.local:8000"
 
 var expertNick: String = ""
 
