@@ -1,18 +1,24 @@
 import json
 import logging
 import re
+import socketserver
+from copy import copy, deepcopy
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import database
 import ahp_logic
 
+input_json = {}
+output_json = {}
 
 class HTTPRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
+        global input_json
         if re.search('/item_comparison', self.path):
             length = int(self.headers.get('content-length'))
             data = self.rfile.read(length).decode('utf8')
 
             result = json.loads(data)
+            input_json["responses"].append(result)
             database.insert_alternative_ranking(result["ids"], result["criterionId"], result["expertId"], result["matrix"])
             self.send_response(200)
         elif re.search('/criteria_comparison', self.path):
@@ -20,6 +26,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             data = self.rfile.read(length).decode('utf8')
 
             result = json.loads(data)
+            input_json["responses"].append(result)
             database.insert_criteria_ranking(result["ids"], result["expertId"], result["matrix"])
             self.send_response(200)
         elif re.search('/facilitator_config', self.path):
@@ -29,12 +36,23 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             config = json.loads(data)
             database.create_ranking(config)
 
+            input_json = deepcopy(config)
+
+            for alt in input_json["alternatives"]:
+                alt.pop("criteria_descriptions")
+
+            input_json["responses"] = []
+
+            print(input_json)
+
             self.send_response(200)
         else:
             self.send_response(403)
         self.end_headers()
 
     def do_GET(self):
+        global input_json
+        global output_json
         if re.search('/items', self.path):
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
@@ -58,6 +76,8 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
             result = list(map(lambda x: x[1][1], sorted(zip(ranking, alternatives))))
 
+            output_json = list(map(lambda x: {"Name": x[1][1], "Score": x[0]}, sorted(zip(ranking, alternatives))))
+
             data = json.dumps(result).encode('utf-8')
 
             self.wfile.write(data)
@@ -67,6 +87,16 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
             self.wfile.write(str(expert_id).encode('utf-8'))
+        elif re.search('/input_json', self.path):
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(input_json).encode('utf-8'))
+        elif re.search('/output_json', self.path):
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(output_json).encode('utf-8'))
         else:
             self.send_response(403)
             self.end_headers()
